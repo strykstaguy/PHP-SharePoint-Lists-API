@@ -1130,4 +1130,21 @@ class SharePointAPI {
 	public function getVersions ($list, $id, $field = null) {
 	    return $this->getFieldVersions($list, $id, $field);
 	}
+
+    public function getItem ($item_url) {
+        // Wrap in CAML
+        $CAML = '
+        <GetItem xmlns="http://schemas.microsoft.com/sharepoint/soap/">
+            <Url>'.$item_url.'</Url>
+        </GetItem>
+    ';
+        $xmlvar = new \SoapVar($CAML, XSD_ANYXML);
+        // Attempt to run operation
+        try {
+            $rawXml = $this->soapClient->GetItem($xmlvar)->Stream;
+        } catch (\SoapFault $fault) {
+            $this->onError($fault);
+        }
+        return $rawXml;
+    }
 }
